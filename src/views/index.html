@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>书城首页</title>
+<link type="text/css" rel="stylesheet" href="/static/css/style.css" >
+	<script src="/static/script/jquery-1.7.2.js"></script>
+	<script>
+		$(function (){
+			//绑定单击事件
+			$(".AddBook2Cart").click(function (){
+				var bookId = $(this).attr("id");
+				var url = "/AddBook2Cart"
+				var param = {"bookId":bookId}
+				$.post(url,param,function (res){
+					if (res == "请先进行登录再操作！"){
+						alert(res+"点击确定进行登录。");
+						window.location.replace("/toLogin");
+					}else {
+						$("#bookMsg").text(res);
+					}
+				});
+			});
+		});
+	</script>
+</head>
+<body>
+	
+	<div id="header">
+			<img class="logo_img" alt="" src="/static/img/logo.gif" >
+			<span class="wel_word">网上书城</span>
+			{{if .IsLogin}}
+			<div>
+				<span>欢迎<span class="um_span">{{.Username}}</span>光临尚硅谷书城</span>
+				<a href="/getCartInfo">购物车</a>
+				<a href="/getMyOrder">我的订单</a>
+				<a href="/logout">注销</a>
+				<a href="/main">返回主页</a>
+				<a href="/pages/manager/manager.html">后台管理</a>
+			</div>
+			{{else}}
+			<div>
+				<a href="/toLogin">登录</a> |
+				<a href="/pages/user/regist.html">注册</a> &nbsp;&nbsp;
+				<a href="/pages/manager/manager.html">后台管理</a>
+			</div>
+			{{end}}
+	</div>
+	
+	<div id="main">
+		<div id="book">
+			<div class="book_cond">
+				<form action="/queryPrice" method="post">
+				价格：<input type="text" name="min"> 元 - <input type="text" name="max"> 元
+				<button>查询</button>
+				</form>
+			</div>
+			<div style="text-align: center">
+				<div>
+					<br>
+					<span style="color: deepskyblue" id="bookMsg"></span></span>
+				</div>
+			</div>
+
+			{{range .Books}}
+			<div class="b_list">
+				<div class="img_div">
+					<img class="book_img" alt="" src="{{.ImagePath}}" />
+				</div>
+				<div class="book_info">
+					<div class="book_name">
+						<span class="sp1">书名:</span>
+						<span class="sp2">{{.Title}}</span>
+					</div>
+					<div class="book_author">
+						<span class="sp1">作者:</span>
+						<span class="sp2">{{.Author}}</span>
+					</div>
+					<div class="book_price">
+						<span class="sp1">价格:</span>
+						<span class="sp2">{{.Price}}</span>
+					</div>
+					<div class="book_sales">
+						<span class="sp1">销量:</span>
+						<span class="sp2">{{.Sales}}</span>
+					</div>
+					<div class="book_amount">
+						<span class="sp1">库存:</span>
+						<span class="sp2">{{.Stock}}</span>
+					</div>
+					<div class="book_add">
+						<button class="AddBook2Cart" id="{{.ID}}">加入购物车</button>
+					</div>
+				</div>
+			</div>
+			{{end}}
+
+		</div>
+
+		<div id="page_nav">
+			{{if .IsHasPrev}}
+				<a href="/main?PageNo=1">首页</a>
+				<a href="/main?PageNo={{.GetPrevPageNo}}">上一页</a>
+			{{end}}
+			当前是第{{.IndexPage}}页，共<span id="totalPages">{{.Pages}} </span>页，共{{.Count}}条记录
+			{{if .IsHasNext}}
+				<a href="/main?PageNo={{.GetNextPageNo}}">下一页</a>
+				<a href="/main?PageNo={{.Pages}}">末页</a>
+			{{end}}
+			到第<input value="{{.IndexPage}}" name="pn" id="pn_input"/>页
+			<input type="button" value="确定" id="sub">
+			<script>
+				//给确定按钮绑定单击事件
+				$("#sub").click(function(){
+					//获取输入的页码
+					var pageNo = $("#pn_input").val();
+					var totalPages = $("#totalPages").text();
+					if (pageNo <= 0 || pageNo > totalPages){
+						alert("输入页码有误！");
+						return false;
+					}else {
+						location = "/main?PageNo=" + pageNo
+					}
+				});
+			</script>
+		</div>
+	
+	</div>
+	
+	<div id="bottom">
+		<span>
+			尚硅谷书城.Copyright &copy;2015
+		</span>
+	</div>
+</body>
+</html>
